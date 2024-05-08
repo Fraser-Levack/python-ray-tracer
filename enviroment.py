@@ -4,48 +4,62 @@ import csv
 
 
 class Map:
-    def __init__(self):
-        # start new pygame window instance
-        pygame.init()
+    def __init__(self, win=None):
         # Set up the display
         self.width, self.height = 600, 600
-        self.win = pygame.display.set_mode((self.width, self.height))
-        # Set up the title
-        pygame.display.set_caption("mini map")
+        self.test = False
+        if win is None:
+            # start new pygame window instance
+            pygame.init()
+            self.win = pygame.display.set_mode((self.width, self.height))
+            # Set up the title
+            pygame.display.set_caption("mini map")
+            self.test = True
+        else:
+            self.win = win
         # Set up the clock
         self.clock = pygame.time.Clock()
-        self.run = True
-        player = PlayerCamera([300, 300], 0, 60)
-        self.game_loop(player)
-
-    def game_loop(self, player):
-        key_pressed = None
-        # place mouse in center of screen
+        self.mouse_pos = [self.width // 2, self.height // 2]
         pygame.mouse.set_pos([self.width // 2, self.height // 2])
-        mouse_pos = [self.width // 2, self.height // 2]
+        self.key_pressed = None
+        self.run = True
+        self.player = PlayerCamera([300, 300], 0, 60)
+        self.walls = self.make_map()
+
+    def game_loop(self):
+        player = self.player
         while self.run:
-
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.run = False
-                if event.type == pygame.KEYDOWN:
-                    key_pressed = event.key
-                if event.type == pygame.KEYUP:
-                    key_pressed = None
-                if event.type == pygame.MOUSEMOTION:
-                    mouse_pos = list(event.pos)
-
-            # Update the display
-            pygame.display.update()
             # background colour
             self.win.fill((30, 30, 30))
-            walls = self.make_map()
-            # update & draw the player
-            player.update(key_pressed, mouse_pos, walls)
             player.draw(self.win)
-
-            self.clock.tick(60)
+            for wall in self.walls:
+                wall.draw(self.win)
+            self.step_time(player)
         pygame.quit()
+
+    # create step time method to do one iteration of the game loop
+    def step_time(self, player):
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.run = False
+            if event.type == pygame.KEYDOWN:
+                self.key_pressed = event.key
+            if event.type == pygame.KEYUP:
+                self.key_pressed = None
+            if event.type == pygame.MOUSEMOTION:
+                self.mouse_pos = list(event.pos)
+        key_pressed = self.key_pressed
+        mouse_pos = self.mouse_pos
+        # Update the display
+        pygame.display.update()
+
+
+        walls = self.walls
+        # update & draw the player
+        player.update(key_pressed, mouse_pos, walls)
+        if self.test:
+            self.clock.tick(60)
 
     def make_map(self):
         walls = []
@@ -57,7 +71,6 @@ class Map:
                 end = [int(row[2]), int(row[3])]
                 thickness = int(row[4])
                 wall = Wall(start, end, thickness)
-                wall.draw(self.win)
                 walls.append(wall)
         return walls
 
@@ -96,18 +109,22 @@ class PlayerCamera:
         new_pos = self.pos[:]
         # base of off player wasd movement and player direction
         if key_pressed == pygame.K_w:
+            print('moving forward')
             new_pos[0] += angle_increment[0] * self.speed
             new_pos[1] += angle_increment[1] * self.speed
 
         if key_pressed == pygame.K_s:
+            print('moving backward')
             new_pos[0] -= angle_increment[0] * self.speed
             new_pos[1] -= angle_increment[1] * self.speed
 
         if key_pressed == pygame.K_a:
+            print('moving left')
             new_pos[0] += angle_increment[1] * self.speed
             new_pos[1] -= angle_increment[0] * self.speed
 
         if key_pressed == pygame.K_d:
+            print('moving right')
             new_pos[0] -= angle_increment[1] * self.speed
             new_pos[1] += angle_increment[0] * self.speed
 
@@ -134,9 +151,13 @@ class PlayerCamera:
         self.rays = []
         for i in range(-self.fov // 2, self.fov // 2):
             self.rays.append(Ray(self.pos, self.dir + i))
+            # print(self.rays[-1].angle)
         # cast rays
         for ray in self.rays:
             ray.cast(walls)
+
+    def get_rays(self):
+        return self.rays
 
     def update(self, key_pressed, mouse_pos, walls):
         # get possible new position
@@ -189,16 +210,15 @@ class Ray:  # Ray class
 
         # check if the point of intersection is on the line segments
         tolerance = 1e-5
-        if x < min(x1, x2) - tolerance or x > max(x1, x2) + tolerance or x < min(x3, x4) - tolerance or x > max(x3,
-                                                                                                                x4) + tolerance or \
-                y < min(y1, y2) - tolerance or y > max(y1, y2) + tolerance or y < min(y3, y4) - tolerance or y > max(y3,
-                                                                                                                     y4) + tolerance:
+        if (x < min(x1, x2) - tolerance or x > max(x1, x2) + tolerance or x < min(x3, x4) - tolerance or x > max(x3, x4)
+                + tolerance or y < min(y1, y2) - tolerance or y > max(y1, y2) + tolerance or y < min(y3, y4) - tolerance
+                or y > max(y3, y4) + tolerance):
             return None
 
         return math.sqrt((x - x1) ** 2 + (y - y1) ** 2)
 
     # check all walls for the closest wall
-    # then use the distance method to calculate the distance an change length of ray
+    # then use the distance method to calculate the distance a change length of ray
     def cast(self, walls):
         closest = None
         for wall in walls:
@@ -227,3 +247,4 @@ class Wall:
 
 if __name__ == '__main__':
     test_map = Map()
+    test_map.game_loop()
