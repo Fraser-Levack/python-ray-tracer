@@ -29,28 +29,11 @@ def game_loop(clock, win, mini_map, player, width, height):
 
         # background colour
         win.fill((10, 10, 10))
-        player.draw(win)
-        # ray_angle = 180
-        # ray_distance = 200
-        # try:
-        #     # check if rays is not empty
-        #     if player.rays:
-        #         ray_angle = player.rays[0].angle
-        #         ray_distance = player.rays[0].length
-        # except Exception as e:
-        #     print(e)
-        # print(Draw.calculate_x_from_angle(ray_angle, player.dir, player.fov, 1000, ray_distance))
-        # step time in the environment
-
-        # for each ray make a point on the screen
-        points = [Draw.calculate_point_from_ray(ray, player.dir, player.fov, width) for ray in player.rays]
-        # draw the points
-        Draw.points(win, points)
+        #player.draw(win)
+        lines = [Draw.calculate_line_from_ray(ray, player.dir, player.fov, width, height) for ray in player.rays]
+        Draw.lines(win, lines)
         mini_map.step_time(player=player)
         run = mini_map.run
-        # rays = player.get_rays()
-        # for each_ray in rays:
-            # each_ray.draw(win)
 
         pygame.display.flip()
         clock.tick(60)

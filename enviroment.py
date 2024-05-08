@@ -109,22 +109,22 @@ class PlayerCamera:
         new_pos = self.pos[:]
         # base of off player wasd movement and player direction
         if key_pressed == pygame.K_w:
-            print('moving forward')
+            # print('moving forward')
             new_pos[0] += angle_increment[0] * self.speed
             new_pos[1] += angle_increment[1] * self.speed
 
         if key_pressed == pygame.K_s:
-            print('moving backward')
+            # print('moving backward')
             new_pos[0] -= angle_increment[0] * self.speed
             new_pos[1] -= angle_increment[1] * self.speed
 
         if key_pressed == pygame.K_a:
-            print('moving left')
+            # print('moving left')
             new_pos[0] += angle_increment[1] * self.speed
             new_pos[1] -= angle_increment[0] * self.speed
 
         if key_pressed == pygame.K_d:
-            print('moving right')
+            # print('moving right')
             new_pos[0] -= angle_increment[1] * self.speed
             new_pos[1] += angle_increment[0] * self.speed
 
