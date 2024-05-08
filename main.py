@@ -28,7 +28,7 @@ def game_loop(clock, win, mini_map, player, width, height):
         # Update the display
 
         # background colour
-        win.fill((30, 30, 30))
+        win.fill((10, 10, 10))
         player.draw(win)
         # ray_angle = 180
         # ray_distance = 200

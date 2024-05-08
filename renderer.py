@@ -11,7 +11,10 @@ class Draw:
         for point in points:
             # if point already has a colour set
             if len(point) == 3:
-                Draw.point(win, point[0], point[1], point[2])
+                try:
+                    Draw.point(win, point[0], point[1], point[2])
+                except Exception as e:
+                    Draw.point(win, point[0], point[1], (20, 10, 10))
             else:
                 colour = Draw.colour(point[2])
                 Draw.point(win, point[0], point[1], colour)
@@ -32,7 +35,7 @@ class Draw:
         # calculate the angle from the player to the ray
         angle_from_player = angle - player_dir
         # adjust the x-coordinate based on the distance of the ray
-        x = center_of_window + (angle_from_player * width) // (player_fov * distance) * 10
+        x = center_of_window + (angle_from_player * width) // player_fov // 1.5
         return x
 
     @staticmethod
@@ -55,8 +58,8 @@ class Draw:
     @staticmethod
     def ray_colour(ray):
         # change ray colour to black if greater than 200
-        if ray.length > 200:
-            return 0, 0, 0
-        # make the ray more red based on length
-        return 255, 255 - ray.length, 255 - ray.length
+        if ray.length >= 200:
+            return 10, 10, 10
+        # make the ray closer to 30,30,30 the further away it is
+        return 255 - ray.length, 255 - ray.length, 255 - ray.length
 
